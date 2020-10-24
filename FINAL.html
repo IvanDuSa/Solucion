@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Reto Semana 5</title>
+</head>
+<body>
+    <h1 id="titulo" class="titulo-class">¿Cómo saber si esta zona es apta <br> para plantar una industría?</h1>
+    <p id="Descripcion" class="Descripcion-class">
+        En la actualidad, es importante para los empresarios tener un lugar en donde poder trabajar <br>
+        por lo que conseguir un área geografica en dónde plantear unas oficinas, una bodega, <br>
+        una industria puede llegar a ser tedioso para un empresario que desee desarrollar tecnología <br>
+        o que requiera de un espacio aislado o lleno de materia prima. <br>
+    </p>
+    <p id="Instrucciones_01" class="Instrucciones_01-class">
+        Como primer paso se recomienda sacar fotos de aspectos como <br>
+        -Zona general <br>
+        -Arboles de la zona <br>
+        -Insectos de la zona <br>
+        -Tierra (suelo) de la zona 
+    </p>
+
+<!-- PEDIR SUBIR IMAGEN DE ARBOLES -->
+    <p id="ARBOLES" class="PREGUNTA-class">
+        Por favor, suba la imagen de un arbol de la zona:
+    </p>
+    <form id="MyForm" class="MyFroms-class">
+        <input id="url01" type="url" placeholder="URL de la imagen">
+        <button type="button" onclick="sendToPredictionARBOL()">Analizar_Arbol</button>
+    </form>
+
+<!-- PEDIR SUBIR IMAGEN DE TIERRA -->
+    <p id="TIERRA" class="PREGUNTA-class">
+        Por favor, suba la imagen de la tierra (suelo) de la zona:
+    </p>
+    <form id="MyForm" class="MyFroms-class">
+        <input id="url02" type="url" placeholder="URL de la imagen">
+        <button type="button" onclick="sendToPredictionTIERRA()">Analizar_Tierra</button>
+    </form>
+
+<!-- PEDIR SUBIR IMAGEN DE ANIMAL -->
+    <p id="ANIMALES" class="PREGUNTA-class">
+        Por favor, suba la imagen de algun animal de la zona:
+    </p>
+    <form id="MyForm" class="MyFroms-class">
+        <input id="url03" type="url" placeholder="URL de la imagen">
+        <button type="button" onclick="sendToPredictionANIMALES()">Analizar_Animal</button>
+    </form>
+
+<!-- PEDIR SUBIR IMAGEN DE ZONA -->
+    <p id="AMBIENTE" class="PREGUNTA-class">
+        Por favor, suba la imagen el ambiente general de la zona:
+    </p>
+    <form id="MyForm" class="MyFroms-class">
+        <input id="url04" type="url" placeholder="URL de la imagen">
+        <button type="button" onclick="sendToPredictionZONA()">Analizar_Zona</button>
+    </form>
+
+<!-- Aquí va a caer el resultado de la API -->
+    <p id="Result_ARBOLES" class="Result-Class" ></p>
+    <p id="Result_TIERRA" class="Result-Class" ></p>
+    <p id="Result_ANIMAL" class="Result-Class" ></p>
+    <p id="Result_ZONA" class="Result-Class" ></p>
+
+<!-- Recomendación FINAL -->
+    <p id="FINAL" class="FINAL-class">
+        Tome en cuenta los resultados anteriores para <br>
+        poder decidir entre poner su planta en ese lugar <br>
+        o buscar otro con las condiciones que busca. <br>
+        GRACIAS POR USAR EL SERVICIO
+    </p>
+</body>
+</html>
+
+<!--*****************************************************************************Separación de lenguajes -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script>
+    function sendToPredictionARBOL() {
+            const url01 = document.getElementById("url01").value;
+            console.log(url01);
+            $.ajax({
+                url:"https://southcentralus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/893cfeb9-f972-4df3-b9f8-c86aae7776a2/classify/iterations/Iteration1/url",
+                beforeSend: function(xhrObj)  {
+                    xhrObj.setRequestHeader("Content-Type","application/json");
+                    xhrObj.setRequestHeader("Prediction-Key","fac93fdc9ca54602b62fa25141c64b3d");
+                },  
+                type:"POST",
+                data:'{"URL": "' + url01 + '"}"',
+            })
+            .done(function(data) {
+                console.log(data.predictions);
+                var majorElement = "";
+                var majorProbability = 0;
+                data.predictions.forEach(element =>{
+                    if(majorProbability < element.probability) {
+                        majorProbability = element.probability
+                        majorElement = element.tagName
+                    }
+                });     
+                const finalPrediction = round(majorProbability * 100);
+                switch (majorElement) {
+                    case "ArbolesNoCORTAR":
+                        document.getElementById("Result_ARBOLES").innerHTML = "La probabilidad de que sea un arbol delicado es de: " + finalPrediction + " % \n"
+                        break;
+                    case "ArbolesCORTAR":
+                        document.getElementById("Result_ARBOLES").innerHTML = "La probabilidad de que sea un arbol no delicado es de: " + finalPrediction + " % \n"
+                        break;
+                    default:
+                        document.getElementById("Result_TIERRA").innerHTML = "Esto no corresponde al campo seleccionado, por favor intente con otra foto."
+                } 
+            })
+            .fail(function(){
+                document.getElementById("Result_ARBOL").innerHTML = "ERROR en ejecución"
+            })
+        }
+//***********************************************************************************************
+        function sendToPredictionTIERRA() {
+            const url02 = document.getElementById("url02").value;
+            console.log(url02);
+            $.ajax({
+                url:"https://southcentralus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/893cfeb9-f972-4df3-b9f8-c86aae7776a2/classify/iterations/Iteration1/url",
+                beforeSend: function(xhrObj)  {
+                    xhrObj.setRequestHeader("Content-Type","application/json");
+                    xhrObj.setRequestHeader("Prediction-Key","fac93fdc9ca54602b62fa25141c64b3d");
+                },  
+                type:"POST",
+                data:'{"URL": "' + url02 + '"}"',
+            })
+            .done(function(data) {
+                console.log(data.predictions);
+                var majorElement = "";
+                var majorProbability = 0;
+                data.predictions.forEach(element =>{
+                    if(majorProbability < element.probability) {
+                        majorProbability = element.probability
+                        majorElement = element.tagName
+                    }
+                }); 
+                
+                const finalPrediction = round(majorProbability * 100);
+
+                switch (majorElement) {
+                    case "TierraFERTIL":
+                        document.getElementById("Result_TIERRA").innerHTML = "La probabilidad de que sea una tierra fertil es de: " + finalPrediction + " % \n"
+                        break;
+                    case "TierraNOFertil":
+                        document.getElementById("Result_TIERRA").innerHTML = "La probabilidad de que sea un suelo infertil es de: " + finalPrediction + " % \n"
+                        break;
+                    default:
+                        document.getElementById("Result_TIERRA").innerHTML = "Esto no corresponde al campo seleccionado, por favor intente con otra foto."
+                } 
+  
+            })
+            .fail(function(){
+                document.getElementById("Result_ARBOL").innerHTML = "ERROR en ejecución"
+            })
+            
+        }
+//***********************************************************************************************
+        function sendToPredictionANIMALES() {
+            const url03 = document.getElementById("url03").value;
+            console.log(url03);
+            $.ajax({
+                url:"https://southcentralus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/893cfeb9-f972-4df3-b9f8-c86aae7776a2/classify/iterations/Iteration1/url",
+                beforeSend: function(xhrObj)  {
+                    xhrObj.setRequestHeader("Content-Type","application/json");
+                    xhrObj.setRequestHeader("Prediction-Key","fac93fdc9ca54602b62fa25141c64b3d");
+                },  
+                type:"POST",
+                data:'{"URL": "' + url03 + '"}"',
+            })
+            .done(function(data) {
+                console.log(data.predictions);
+                var majorElement = "";
+                var majorProbability = 0;
+                data.predictions.forEach(element =>{
+                    if(majorProbability < element.probability) {
+                        majorProbability = element.probability
+                        majorElement = element.tagName
+                    }
+                }); 
+                
+                const finalPrediction = round(majorProbability * 100);
+
+                switch (majorElement) {
+                    case "AnimalesBUENOS":
+                        document.getElementById("Result_ANIMAL").innerHTML = "La probabilidad de que sea un animal importante es de: " + finalPrediction + " % \n"
+                        break;
+                    case "AnimalesMALOS":
+                        document.getElementById("Result_ANIMAL").innerHTML = "La probabilidad de que sea un animal plagoso es de: " + finalPrediction + " % \n"
+                        break;
+                    default:
+                        document.getElementById("Result_ANIMAL").innerHTML = "Esto no corresponde al campo seleccionado, por favor intente con otra foto."
+                } 
+  
+            })
+            .fail(function(){
+                document.getElementById("Result_ARBOL").innerHTML = "ERROR en ejecución"
+            })
+            
+        }
+//***********************************************************************************************
+        function sendToPredictionZONA() {
+            const url04 = document.getElementById("url04").value;
+            console.log(url04);
+            $.ajax({
+                url:"https://southcentralus.api.cognitive.microsoft.com/customvision/v3.0/Prediction/893cfeb9-f972-4df3-b9f8-c86aae7776a2/classify/iterations/Iteration1/url",
+                beforeSend: function(xhrObj)  {
+                    xhrObj.setRequestHeader("Content-Type","application/json");
+                    xhrObj.setRequestHeader("Prediction-Key","fac93fdc9ca54602b62fa25141c64b3d");
+                },  
+                type:"POST",
+                data:'{"URL": "' + url04 + '"}"',
+            })
+            .done(function(data) {
+                console.log(data.predictions);
+                var majorElement = "";
+                var majorProbability = 0;
+                data.predictions.forEach(element =>{
+                    if(majorProbability < element.probability) {
+                        majorProbability = element.probability
+                        majorElement = element.tagName
+                    }
+                }); 
+                
+                const finalPrediction = round(majorProbability * 100);
+
+                switch (majorElement) {
+                    case "BOSQUE":
+                        document.getElementById("Result_ZONA").innerHTML = "La probabilidad de que sea una zona boscosa es de: " + finalPrediction + " % \n"
+                        break;
+                    case "DESIERTO":
+                        document.getElementById("Result_ZONA").innerHTML = "La probabilidad de que sea una zona desertica es de: " + finalPrediction + " % \n"
+                        break;
+                    default:
+                        document.getElementById("Result_ZONA").innerHTML = "Esto no corresponde al campo seleccionado, por favor intente con otra foto."
+                } 
+  
+            })
+            .fail(function(){
+                document.getElementById("Result_ZONA").innerHTML = "ERROR en ejecución"
+            })
+            
+        }
+//***********************************************************************************************
+
+//***************************************************FUNCIÓN DE REDONDEAR************************
+            function round(num, decimales =2){
+                var signo = (num >=0 ? 1 : -1);
+                num = num * signo;
+                if (decimales === 0)
+                    return signo * Math.round(num)
+        
+                num = num.toString().split('e');
+                num = Math.round(+(num[0] + 'e' + (num[1] ? (+num[1] + decimales) : decimales ) ) );
+        
+                num= num.toString().split('e');
+                return num = Math.round(+(num[0] + 'e' + (num[1] ? (+num[1] - decimales) : -decimales ) ) );
+            }
+
+</script>
